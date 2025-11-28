@@ -183,6 +183,7 @@ class FinancialService
 
     private function recordSingleIncome($user, $amount, $rule, $item)
     {
+        if(!$user) return;
         OrderItemIncome::create([
             'price_rule_id' => $rule->id,
             'order_item_id' => $item->id,
