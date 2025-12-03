@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderDeliveryResource\Pages\ListOrderDeliveries;
-use App\Filament\Resources\OrderResource\Pages\ViewOrderDelivery;
+use App\Filament\Resources\OrderDeliveryResource\Pages\ViewOrderDelivery;
 use App\Models\OrderDelivery;
 use Filament\Forms;
 use Filament\Tables;
