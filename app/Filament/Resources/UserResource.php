@@ -56,8 +56,10 @@ class UserResource extends Resource
                     Forms\Components\TextInput::make('wallet')
                         ->label(__('rental.balance'))
                         ->numeric()
+                        ->default(0)
                         ->suffix(__('rental.currency'))
-                        ->readOnly(), 
+                        ->disabled()
+                        ->dehydrated(false), 
                     Forms\Components\Textarea::make('address')
                         ->label(__('rental.address'))
                         ->columnSpanFull(),
