@@ -156,4 +156,7 @@ return [
     'order' => 'سفارش',
     'delivery_assigned' => 'تحویل تخصیص داده شد',
     'delivery_assigned_to_driver' => 'تحویل به راننده تخصیص داده شد',
+    'add_manual_income' => 'افزودن درآمد دستی',
+    'prefilled_cost' => 'هزینه از پیش تعیین شده',
+    'prefilled_cost_help' => 'اگر می‌خواهید زمان و هزینه تحویل را الان تعیین کنید این گزینه را علامت بزنید',
 ];

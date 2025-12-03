@@ -49,6 +49,7 @@ class OrderResource extends Resource
                                 ->label(__('rental.customer'))
                                 ->options(User::all()->pluck('name', 'id'))
                                 ->searchable()
+                                ->preload()
                                 ->live()
                                 ->afterStateUpdated(function ($state, Forms\Set $set) {
                                     if ($user = User::find($state)) {
@@ -75,6 +76,7 @@ class OrderResource extends Resource
                                             ->label(__('rental.good'))
                                             ->options(Good::where('is_available', true)->pluck('title', 'id'))
                                             ->searchable()
+                                            ->preload()
                                             ->required()
                                             ->live()
                                             ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
@@ -111,7 +113,8 @@ class OrderResource extends Resource
                                         Forms\Components\Select::make('logistic_id')
                                             ->label(__('rental.logistic'))
                                             ->options(Logistic::pluck('name', 'id'))
-                                            ->searchable(),
+                                            ->searchable()
+                                            ->preload(),
                                     ])->columns(2),
 
                                     Forms\Components\DatePicker::make('started_at')->required()->label(__('rental.start_date'))->localeDateTime(),
@@ -127,6 +130,7 @@ class OrderResource extends Resource
                         ->schema([
                             Forms\Components\Select::make('status')
                                 ->label(__('rental.status'))
+                                ->preload()
                                 ->options([
                                     'pending' => __('rental.pending'),
                                     'delivery' => __('rental.delivery'),

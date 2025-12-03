@@ -52,6 +52,7 @@ class UserResource extends Resource
                             'admin' => __('rental.roles.admin'),
                             'delivery' => __('rental.roles.delivery'),
                         ])
+                        ->preload()
                         ->required(),
                     Forms\Components\TextInput::make('wallet')
                         ->label(__('rental.balance'))

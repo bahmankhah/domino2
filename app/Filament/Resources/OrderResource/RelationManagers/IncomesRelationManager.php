@@ -36,19 +36,22 @@ class IncomesRelationManager extends RelationManager
                         });
                     })
                     ->required()
-                    ->searchable(),
+                    ->searchable()
+                    ->preload(),
 
                 Forms\Components\Select::make('received_by')
                     ->label(__('rental.recipient'))
                     ->options(User::all()->pluck('name', 'id'))
                     ->required()
-                    ->searchable(),
+                    ->searchable()
+                    ->preload(),
 
                 // Only allow selecting rules that are "Manual" (percentage is null)
                 Forms\Components\Select::make('price_rule_id')
                     ->label(__('rental.income_type') ?? 'Type')
                     ->options(IncomePriceRule::pluck('type', 'id'))
-                    ->required(),
+                    ->required()
+                    ->preload(),
 
                 Forms\Components\TextInput::make('credit')
                     ->label(__('rental.income'))

@@ -150,4 +150,7 @@ return [
     'order' => 'Order',
     'delivery_assigned' => 'Delivery Assigned',
     'delivery_assigned_to_driver' => 'The delivery has been assigned to the driver',
+    'add_manual_income' => 'Add Manual Income',
+    'prefilled_cost' => 'Prefilled Cost',
+    'prefilled_cost_help' => 'Check this if you want to set the delivery time and cost now',
 ];

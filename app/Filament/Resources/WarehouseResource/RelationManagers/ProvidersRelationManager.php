@@ -23,8 +23,9 @@ class ProvidersRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\Select::make('provider_id')
-                    ->relationship('providers', 'name') // Note: BelongsToMany usually just needs record select
+                    ->relationship('providers', 'name')
                     ->searchable()
+                    ->preload()
                     ->required()
                     ->label(__('rental.user')),
                 Forms\Components\TextInput::make('ownership_percent')

@@ -28,15 +28,17 @@ class ListOrderDeliveries extends ListRecords
                                 ->pluck('customer_name', 'id')
                         )
                         ->searchable()
+                        ->preload()
                         ->required(),
 
                     Forms\Components\Select::make('delivered_by_id')
                         ->label(__('rental.delivered_by'))
                         ->options(
-                            User::where('role', 'driver')
+                            User::where('role', 'delivery')
                                 ->pluck('name', 'id')
                         )
                         ->searchable()
+                        ->preload()
                         ->required(),
                 ])
                 ->mutateFormDataUsing(function (array $data): array {

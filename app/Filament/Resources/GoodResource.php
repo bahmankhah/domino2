@@ -45,11 +45,13 @@ class GoodResource extends Resource
                              Forms\Components\TextInput::make('name')->required(),
                              Forms\Components\TextInput::make('slug')->required(),
                         ])
-                        ->searchable(), // Category name usually managed in its own resource
+                        ->searchable()
+                        ->preload(),
                     Forms\Components\Select::make('warehouse_id')
                         ->label(__('rental.current_location'))
                         ->relationship('warehouse', 'title')
-                        ->searchable(),
+                        ->searchable()
+                        ->preload(),
                     Forms\Components\Toggle::make('is_available')->label(__('rental.is_available'))->default(true),
                 ])->columns(2),
 

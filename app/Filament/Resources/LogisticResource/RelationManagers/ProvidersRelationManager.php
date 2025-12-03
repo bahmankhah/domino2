@@ -25,6 +25,7 @@ class ProvidersRelationManager extends RelationManager
                 Forms\Components\Select::make('provider_id')
                     ->relationship('providers', 'name')
                     ->searchable()
+                    ->preload()
                     ->required()
                     ->label(__('rental.user')),
                 Forms\Components\TextInput::make('ownership_percent')
