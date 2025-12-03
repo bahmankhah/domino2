@@ -28,6 +28,11 @@ class OrderResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?int $navigationSort = 1;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string { return __('rental.orders_rents'); }
     public static function getPluralLabel(): ?string { return __('rental.orders_rents'); }
 

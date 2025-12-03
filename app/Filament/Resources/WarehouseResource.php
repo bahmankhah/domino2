@@ -16,6 +16,11 @@ class WarehouseResource extends Resource
     protected static ?string $model = Warehouse::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('rental.warehouses');

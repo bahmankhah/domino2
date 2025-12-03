@@ -15,9 +15,12 @@ class OrderItemsWidget extends BaseWidget
 {
     public ?\App\Models\OrderDelivery $record = null;
 
-    protected static ?string $heading = 'اقلام سفارش';
-
     protected int | string | array $columnSpan = 'full';
+
+    public function getHeading(): ?string
+    {
+        return __('rental.order_items');
+    }
 
     public function table(Table $table): Table
     {

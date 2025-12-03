@@ -147,4 +147,7 @@ return [
     'delivered' => 'Delivered',
     'cash_from_customer' => 'Cash from Customer',
     'cash_from_customer_help' => 'Check this if the driver received all payment from the customer (delivery fee will be set to 0)',
+    'order' => 'Order',
+    'delivery_assigned' => 'Delivery Assigned',
+    'delivery_assigned_to_driver' => 'The delivery has been assigned to the driver',
 ];

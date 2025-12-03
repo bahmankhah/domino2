@@ -15,6 +15,11 @@ class OrderTypeResource extends Resource
     protected static ?string $model = OrderType::class;
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('rental.order_types');

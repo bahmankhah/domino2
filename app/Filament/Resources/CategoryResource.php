@@ -16,6 +16,11 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('rental.categories');

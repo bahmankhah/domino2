@@ -16,6 +16,11 @@ class LogisticResource extends Resource
     protected static ?string $model = Logistic::class;
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('rental.logistics');

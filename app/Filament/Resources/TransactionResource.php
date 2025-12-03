@@ -15,6 +15,11 @@ class TransactionResource extends Resource
     protected static ?string $model = Transaction::class;
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationGroup(): ?string
     {
         return __('rental.finance');

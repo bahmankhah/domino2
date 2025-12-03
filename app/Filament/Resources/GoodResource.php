@@ -17,6 +17,11 @@ class GoodResource extends Resource
     protected static ?string $model = Good::class;
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->role === 'admin';
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('rental.goods');
