@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\OrderResource\Pages;
+namespace App\Filament\Resources\OrderDeliveryResource\Pages;
 
 use App\Filament\Resources\OrderDeliveryResource;
 use App\Models\OrderItemIncome;
