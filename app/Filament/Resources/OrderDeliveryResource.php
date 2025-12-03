@@ -40,7 +40,7 @@ class OrderDeliveryResource extends Resource
     {
         // return true;
         $role = auth()->user()?->role;
-        return in_array($role, ['admin', 'driver']);
+        return in_array($role, ['admin', 'delivery']);
     }
 
     public static function getEloquentQuery(): Builder
@@ -48,7 +48,7 @@ class OrderDeliveryResource extends Resource
         $query = parent::getEloquentQuery();
         $user = auth()->user();
 
-        if ($user->role === 'driver') {
+        if ($user->role === 'delivery') {
             // Drivers only see their own undelivered orders
             $query->where('delivered_by_id', $user->id)
                   ->whereNull('delivered_at');
