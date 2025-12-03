@@ -30,4 +30,9 @@ class Order extends Model
     {
         return $this->hasManyThrough(OrderItemIncome::class, OrderItem::class);
     }
+
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(OrderDelivery::class);
+    }
 }

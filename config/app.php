@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'date_type' => env('APP_DATE_TYPE', 'jalali'),
+
 ];

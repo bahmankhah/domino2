@@ -25,8 +25,10 @@ class FinancialService
         }
 
         DB::transaction(function () use ($item) {
-            // 1. Wipe existing draft incomes for this item
-            $item->incomes()->delete();
+            // 1. Wipe existing AUTOMATIC draft incomes for this item.
+            // We preserve incomes where the rule has NO percentage (Manual entries).
+            $autoRuleIds = IncomePriceRule::whereNotNull('percentage')->pluck('id');
+            $item->incomes()->whereIn('price_rule_id', $autoRuleIds)->delete();
 
             if (!$item->price || $item->price <= 0) return;
 
@@ -93,7 +95,7 @@ class FinancialService
     {
         DB::transaction(function () use ($order) {
             // Get all incomes for this order
-            $incomes = $order->incomes()->with(['receivedBy', 'orderItem.good'])->get();
+            $incomes = $order->incomes()->whereNull('received_at')->with(['receivedBy', 'orderItem.good'])->get();
 
             foreach ($incomes as $income) {
                 if (!$income->receivedBy) continue;
@@ -112,8 +114,39 @@ class FinancialService
                     'remain' => $newBalance,
                 ]);
 
+                $income->update([
+                    'received_at' => now(),
+                ]);
+
                 // Update Wallet
                 $income->receivedBy->update(['wallet' => $newBalance]);
+            }
+
+            $deliveries = $order->deliveries;
+            foreach($deliveries as $delivery) {
+                if (!$delivery->delivered_at) continue;
+
+                // Create Transaction for delivery fee if applicable
+                if ($delivery->fee && $delivery->fee > 0) {
+                    $deliverer = $delivery->deliveredBy;
+                    if ($deliverer) {
+                        $currentBalance = $deliverer->wallet ?? 0;
+                        $newBalance = $currentBalance + $delivery->fee;
+
+                        Transaction::create([
+                            'user_id' => $deliverer->id,
+                            'order_id' => $order->id,
+                            'type' => 'income',
+                            'description' => "Delivery Fee from Order #{$order->id}",
+                            'credit' => $delivery->fee,
+                            'debit' => 0,
+                            'remain' => $newBalance,
+                        ]);
+
+                        // Update Wallet
+                        $deliverer->update(['wallet' => $newBalance]);
+                    }
+                }
             }
             
             $order->update(['status' => 'completed']);
@@ -190,7 +223,7 @@ class FinancialService
             'credit' => $amount,
             'debit' => 0,
             'received_by' => $user->id,
-            'received_at' => now(), // Date calculated
+            'received_at' => null, // Date calculated
         ]);
     }
 }

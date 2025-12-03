@@ -1,4 +1,4 @@
-<IfModule mod_rewrite.c>
+/home/hsm/Downloads/Gemini_Generated_Image_z51g93z51g93z51g-removebg-preview (1).ico<IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>

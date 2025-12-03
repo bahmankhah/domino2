@@ -81,7 +81,11 @@ class OrderResource extends Resource
                                             }),
                                         Forms\Components\Select::make('order_type_id')
                                             ->label(__('rental.duration_type'))
-                                            ->options(OrderType::pluck('name', 'id'))
+                                            ->options(fn($get)=>OrderType::when($get('good_id'), function ($query, $goodId) {
+                                                return $query->whereHas('goodPrices', function ($q) use ($goodId) {
+                                                    $q->where('good_id', $goodId);
+                                                });
+                                            })->pluck('name', 'id'))
                                             ->required()
                                             ->live()
                                             ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
@@ -105,8 +109,8 @@ class OrderResource extends Resource
                                             ->searchable(),
                                     ])->columns(2),
 
-                                    Forms\Components\DateTimePicker::make('started_at')->required()->label(__('rental.start_date')),
-                                    Forms\Components\DateTimePicker::make('ended_at')->required()->label(__('rental.end_date')),
+                                    Forms\Components\DatePicker::make('started_at')->required()->label(__('rental.start_date'))->localeDateTime(),
+                                    Forms\Components\DatePicker::make('ended_at')->required()->label(__('rental.end_date'))->localeDateTime(),
                                     Forms\Components\TextInput::make('price')->label(__('rental.price'))->numeric()->required()->suffix(__('rental.currency')), 
                                 ])
                                 ->columns(1)
@@ -165,7 +169,7 @@ class OrderResource extends Resource
                         default => 'primary',
                     }),
                 Tables\Columns\TextColumn::make('items_count')->counts('items')->label(__('rental.items_count')),
-                Tables\Columns\TextColumn::make('created_at')->dateTime()->label(__('rental.created_at')),
+                Tables\Columns\TextColumn::make('created_at')->localeDateTime()->label(__('rental.created_at')),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -214,6 +218,7 @@ class OrderResource extends Resource
     {
         return [
             RelationManagers\IncomesRelationManager::class,
+            RelationManagers\OrderDeliveryRelationManager::class,
         ];
     }
 

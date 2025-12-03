@@ -40,6 +40,14 @@ class UserResource extends Resource
                         ->label(__('rental.mobile'))
                         ->tel()
                         ->required(),
+                    Forms\Components\Select::make('role')
+                        ->label(__('rental.role'))
+                        ->options([
+                            'customer' => __('rental.roles.customer'),
+                            'admin' => __('rental.roles.admin'),
+                            'delivery' => __('rental.roles.delivery'),
+                        ])
+                        ->required(),
                     Forms\Components\TextInput::make('wallet')
                         ->label(__('rental.balance'))
                         ->numeric()
