@@ -11,7 +11,7 @@ class CreateOrder extends CreateRecord
 {
     protected function afterCreate(): void
     {
-        foreach($this->record->orderItems as $orderItem){
+        foreach($this->record->items as $orderItem){
             /**
              * @var Good
              */
