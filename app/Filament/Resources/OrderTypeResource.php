@@ -52,10 +52,11 @@ class OrderTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label(__('rental.name')),
-                Tables\Columns\TextColumn::make('duration_days')->label(__('rental.days')),
+                Tables\Columns\TextColumn::make('name')->label(__('rental.name'))->sortable(),
+                Tables\Columns\TextColumn::make('duration_days')->label(__('rental.days'))->sortable(),
                 Tables\Columns\TextColumn::make('description')->limit(50)->label(__('rental.description')),
-            ]);
+            ])
+            ->defaultSort('name', 'asc');
     }
 
     public static function getPages(): array

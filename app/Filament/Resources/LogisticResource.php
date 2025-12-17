@@ -60,8 +60,10 @@ class LogisticResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                     ->limit(50)
                     ->label(__('rental.description')),
+                Tables\Columns\TextColumn::make('created_at')->localeDateTime()->label(__('rental.created_at')),
             ])
-            ->filters([]);
+            ->filters([])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

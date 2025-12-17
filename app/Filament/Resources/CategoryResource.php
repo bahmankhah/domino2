@@ -63,7 +63,9 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable()->label(__('rental.name')),
                 Tables\Columns\TextColumn::make('slug')->label(__('rental.slug')),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->label(__('rental.is_active')),
-            ]);
+                Tables\Columns\TextColumn::make('created_at')->localeDateTime()->label(__('rental.created_at')),
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

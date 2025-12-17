@@ -115,11 +115,51 @@ class OrderResource extends Resource
                                             ->options(Logistic::pluck('name', 'id'))
                                             ->searchable()
                                             ->preload(),
+                                        Forms\Components\Select::make('referrer_id')
+                                            ->label(__('rental.referrer_provider'))
+                                            ->options(User::pluck('name', 'id'))
+                                            ->searchable()
+                                            ->preload()
+                                            ->getSearchResultsUsing(fn (string $search): array => 
+                                                User::where('name', 'like', "%{$search}%")
+                                                    ->orWhere('email', 'like', "%{$search}%")
+                                                    ->orWhere('mobile', 'like', "%{$search}%")
+                                                    ->limit(50)
+                                                    ->pluck('name', 'id')
+                                                    ->toArray()
+                                            )
+                                            ->getOptionLabelUsing(fn ($value): ?string => 
+                                                User::find($value)?->name
+                                            ),
                                     ])->columns(2),
 
                                     Forms\Components\DatePicker::make('started_at')->required()->label(__('rental.start_date'))->localeDateTime(),
                                     Forms\Components\DatePicker::make('ended_at')->required()->label(__('rental.end_date'))->localeDateTime(),
-                                    Forms\Components\TextInput::make('price')->label(__('rental.price'))->numeric()->required()->suffix(__('rental.currency')), 
+                                    Forms\Components\TextInput::make('price')
+                                        ->label(__('rental.price'))
+                                        ->numeric()
+                                        ->required()
+                                        ->suffix(__('rental.currency'))
+                                        ->live()
+                                        ->hint(function (Forms\Get $get) {
+                                            $goodId = $get('good_id');
+                                            $orderTypeId = $get('order_type_id');
+                                            
+                                            if (!$goodId || !$orderTypeId) return null;
+                                            
+                                            $pricing = OrderTypeGoodPrice::where('good_id', $goodId)
+                                                ->where('order_type_id', $orderTypeId)
+                                                ->first();
+                                            
+                                            if ($pricing && $pricing->supplier_price) {
+                                                return __('rental.supplier_price_hint', [
+                                                    'amount' => number_format($pricing->supplier_price) . ' ' . __('rental.currency')
+                                                ]);
+                                            }
+                                            
+                                            return null;
+                                        }),
+                                    Forms\Components\Hidden::make('good_supplier_price'), 
                                 ])
                                 ->columns(1)
                                 ->itemLabel(fn (array $state): ?string => isset($state['good_id']) ? Good::find($state['good_id'])?->title : null),
@@ -150,7 +190,12 @@ class OrderResource extends Resource
     {
         if (!$goodId || !$orderTypeId) return;
         $pricing = OrderTypeGoodPrice::where('good_id', $goodId)->where('order_type_id', $orderTypeId)->first();
-        if ($pricing) $set('price', $pricing->price);
+        if ($pricing) {
+            $set('price', $pricing->price);
+            if ($pricing->supplier_price) {
+                $set('good_supplier_price', $pricing->supplier_price);
+            }
+        }
     }
 
     public static function table(Table $table): Table
@@ -180,6 +225,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('items_count')->counts('items')->label(__('rental.items_count')),
                 Tables\Columns\TextColumn::make('created_at')->localeDateTime()->label(__('rental.created_at')),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -228,6 +274,7 @@ class OrderResource extends Resource
         return [
             RelationManagers\IncomesRelationManager::class,
             RelationManagers\OrderDeliveryRelationManager::class,
+            RelationManagers\TransactionsRelationManager::class,
         ];
     }
 

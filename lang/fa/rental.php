@@ -29,6 +29,8 @@ return [
     'start_date' => 'تاریخ شروع',
     'end_date' => 'تاریخ پایان',
     'price' => 'قیمت',
+    'supplier_price' => 'قیمت تامین‌کننده',
+    'supplier_price_hint' => 'قیمت تامین‌کننده :amount است',
     'currency' => 'تومان',
     'status' => 'وضعیت',
     'complete_distribute' => 'تکمیل و توزیع درآمد',
@@ -76,6 +78,9 @@ return [
     'debit' => 'بدهکار',
     'income' => 'درآمد',
     'expense' => 'هزینه',
+    'settlement' => 'تسویه حساب',
+    'carrier' => 'حمل و نقل',
+    'type' => 'نوع',
     'recipient' => 'دریافت کننده',
 
     // Income Rule Types

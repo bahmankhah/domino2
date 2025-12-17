@@ -29,6 +29,8 @@ return [
     'start_date' => 'Start Date',
     'end_date' => 'End Date',
     'price' => 'Price',
+    'supplier_price' => 'Supplier Price',
+    'supplier_price_hint' => 'Supplier price is :amount',
     'currency' => 'Toman',
     'status' => 'Status',
     'complete_distribute' => 'Complete & Distribute',
@@ -76,6 +78,9 @@ return [
     'debit' => 'Debit',
     'income' => 'Income',
     'expense' => 'Expense',
+    'settlement' => 'Settlement',
+    'carrier' => 'Carrier',
+    'type' => 'Type',
     'recipient' => 'Recipient',
 
     // Income Rule Types

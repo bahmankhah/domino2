@@ -19,4 +19,9 @@ class OrderItemIncome extends Model
     {
         return $this->belongsTo(OrderItem::class, 'order_item_id');
     }
+
+    public function priceRule(): BelongsTo
+    {
+        return $this->belongsTo(IncomePriceRule::class, 'price_rule_id');
+    }
 }

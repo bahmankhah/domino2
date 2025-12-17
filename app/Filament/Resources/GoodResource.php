@@ -71,11 +71,13 @@ class GoodResource extends Resource
                 Tables\Columns\TextColumn::make('code')->searchable()->label(__('rental.code')),
                 Tables\Columns\TextColumn::make('warehouse.title')->label(__('rental.warehouse')),
                 Tables\Columns\IconColumn::make('is_available')->boolean()->label(__('rental.is_available')),
+                Tables\Columns\TextColumn::make('created_at')->localeDateTime()->label(__('rental.created_at')),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category')->relationship('category', 'name'),
                 Tables\Filters\TernaryFilter::make('is_available')->label(__('rental.is_available')),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array

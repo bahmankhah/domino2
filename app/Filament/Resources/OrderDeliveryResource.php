@@ -96,12 +96,16 @@ class OrderDeliveryResource extends Resource
                 ->localeDateTime()
                 ->sortable()
                 ->placeholder(__('rental.not_delivered_yet')),
+
+            Tables\Columns\TextColumn::make('created_at')
+                ->label(__('rental.created_at'))
+                ->localeDateTime()
+                ->sortable(),
         ])
         ->actions([
             Tables\Actions\ViewAction::make(),
         ])
-        ->defaultSort('delivered_at', 'asc')
-        ->defaultSort('id', 'desc');
+        ->defaultSort('created_at', 'desc');
     }
     public static function getPages(): array
     {

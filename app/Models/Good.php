@@ -29,7 +29,7 @@ class Good extends Model
     public function prices(): BelongsToMany
     {
         return $this->belongsToMany(OrderType::class, 'order_type_good_prices', 'good_id', 'order_type_id')
-                    ->withPivot('price')
+                    ->withPivot('price', 'supplier_price')
                     ->withTimestamps();
     }
 }

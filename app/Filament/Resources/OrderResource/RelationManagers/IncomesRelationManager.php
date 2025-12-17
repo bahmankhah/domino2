@@ -69,7 +69,27 @@ class IncomesRelationManager extends RelationManager
                     ->label(__('rental.good'))
                     ->description(fn ($record) => $record->orderItem?->good?->code),
                 
-                Tables\Columns\TextColumn::make('recipient.name')
+                Tables\Columns\TextColumn::make('priceRule.type')
+                    ->label(__('rental.price_rule'))
+                    ->formatStateUsing(fn (string $state): string => match($state) {
+                        'good_provider' => __('rental.good_provider'),
+                        'warehouse_provider' => __('rental.warehouse_provider'),
+                        'logistics_provider' => __('rental.logistics_provider'),
+                        'referrer_provider' => __('rental.referrer_provider'),
+                        'delivery' => __('rental.carrier'),
+                        default => $state,
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match($state) {
+                        'good_provider' => 'success',
+                        'warehouse_provider' => 'info',
+                        'logistics_provider' => 'warning',
+                        'referrer_provider' => 'primary',
+                        'delivery' => 'danger',
+                        default => 'gray',
+                    }),
+                
+                Tables\Columns\TextColumn::make('receivedBy.name')
                     ->label(__('rental.recipient')),
 
                 Tables\Columns\TextColumn::make('credit')
@@ -79,7 +99,7 @@ class IncomesRelationManager extends RelationManager
                 
                 Tables\Columns\TextColumn::make('received_at')
                     ->label(__('rental.created_at'))
-                    ->dateTime(),
+                    ->localeDateTime(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()

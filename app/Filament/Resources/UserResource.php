@@ -85,6 +85,20 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('mobile')
                     ->label(__('rental.mobile'))
                     ->searchable(),
+                Tables\Columns\BadgeColumn::make('role')
+                    ->label(__('rental.role'))
+                    ->formatStateUsing(fn (string $state): string => match($state) {
+                        'customer' => __('rental.roles.customer'),
+                        'admin' => __('rental.roles.admin'),
+                        'delivery' => __('rental.roles.delivery'),
+                        default => $state,
+                    })
+                    ->colors([
+                        'primary' => 'customer',
+                        'success' => 'admin',
+                        'warning' => 'delivery',
+                    ])
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('wallet')
                     ->label(__('rental.balance'))
                     ->money('IRT')
@@ -92,12 +106,13 @@ class UserResource extends Resource
                     ->color(fn (string $state): string => $state < 0 ? 'danger' : 'success'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('rental.created_at'))
-                    ->dateTime(),
+                    ->localeDateTime(),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array

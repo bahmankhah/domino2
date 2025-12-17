@@ -49,4 +49,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * The goods that this user provides/owns.
+     */
+    public function goods()
+    {
+        return $this->belongsToMany(Good::class, 'good_providers', 'provider_id', 'good_id')
+                    ->withPivot('ownership_percent')
+                    ->withTimestamps();
+    }
 }

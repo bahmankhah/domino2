@@ -46,7 +46,6 @@ class FinancialService
 
             // 4. Resolve Fallbacks
             $finalMap = $percentageMap;
-
             foreach ($percentageMap as $type => $percent) {
                 if (!$this->hasProviderForType($item, $type)) {
                     $fallback = $ruleObjects[$type]->fallback_type ?? null;
@@ -59,7 +58,6 @@ class FinancialService
 
             // 5. Create Income Records (Drafts)
             $totalPrice = $item->price;
-
             foreach ($finalMap as $type => $effectivePercent) {
                 if ($effectivePercent <= 0) continue;
 
@@ -68,13 +66,14 @@ class FinancialService
 
                 switch ($type) {
                     case 'warehouse_provider':
-                        $this->createIncomeRecords($item->warehouse, $amountForThisType, $originalRule, $item, 'warehouse_providers');
+                        $this->createIncomeRecords($item->warehouse, $amountForThisType, $originalRule, $item);
                         break;
                     case 'good_provider':
-                        $this->createIncomeRecords($item->good, $amountForThisType, $originalRule, $item, 'good_providers');
+                        $amountForThisType = $item->good_supplier_price ? $item->good_supplier_price : $amountForThisType;
+                        $this->createIncomeRecords($item->good, $amountForThisType, $originalRule, $item);
                         break;
-                    case 'logistic_provider':
-                        $this->createIncomeRecords($item->logistic, $amountForThisType, $originalRule, $item, 'logistic_providers');
+                    case 'logistics_provider':
+                        $this->createIncomeRecords($item->logistic, $amountForThisType, $originalRule, $item);
                         break;
                     case 'referrer_provider':
                         if ($item->referrer_id) {
@@ -94,7 +93,7 @@ class FinancialService
     public function commitOrderTransactions(Order $order): void
     {
         DB::transaction(function () use ($order) {
-            // Get all incomes for this order
+            // Get all incomes for this order that haven't been processed yet
             $incomes = $order->incomes()->whereNull('received_at')->with(['receivedBy', 'orderItem.good'])->get();
 
             foreach ($incomes as $income) {
@@ -104,11 +103,12 @@ class FinancialService
                 $currentBalance = $income->receivedBy->wallet ?? 0;
                 $newBalance = $currentBalance + $income->credit;
 
+                $goodTitle = $income->orderItem?->good?->title ?? 'Unknown Item';
                 Transaction::create([
-                    'user_id' => $income->receivedBy->id, // Assuming recipient_id exists on model relation or user received_by
+                    'user_id' => $income->receivedBy->id,
                     'order_id' => $order->id,
                     'type' => 'income',
-                    'description' => "Income from Order #{$order->id} (Item: {$income->orderItem->good->title})",
+                    'description' => "Income from Order #{$order->id} (Item: {$goodTitle})",
                     'credit' => $income->credit,
                     'debit' => 0,
                     'remain' => $newBalance,
@@ -130,26 +130,38 @@ class FinancialService
                 if ($delivery->fee && $delivery->fee > 0) {
                     $deliverer = $delivery->deliveredBy;
                     if ($deliverer) {
-                        $currentBalance = $deliverer->wallet ?? 0;
-                        $newBalance = $currentBalance + $delivery->fee;
+                        // Check if delivery fee transaction already exists for this delivery
+                        $existingTransaction = Transaction::where('order_id', $order->id)
+                            ->where('user_id', $deliverer->id)
+                            ->where('type', 'income')
+                            ->where('description', 'like', "Delivery Fee from Order #{$order->id}%")
+                            ->first();
 
-                        Transaction::create([
-                            'user_id' => $deliverer->id,
-                            'order_id' => $order->id,
-                            'type' => 'income',
-                            'description' => "Delivery Fee from Order #{$order->id}",
-                            'credit' => $delivery->fee,
-                            'debit' => 0,
-                            'remain' => $newBalance,
-                        ]);
+                        if (!$existingTransaction) {
+                            $currentBalance = $deliverer->wallet ?? 0;
+                            $newBalance = $currentBalance + $delivery->fee;
 
-                        // Update Wallet
-                        $deliverer->update(['wallet' => $newBalance]);
+                            Transaction::create([
+                                'user_id' => $deliverer->id,
+                                'order_id' => $order->id,
+                                'type' => 'income',
+                                'description' => "Delivery Fee from Order #{$order->id}",
+                                'credit' => $delivery->fee,
+                                'debit' => 0,
+                                'remain' => $newBalance,
+                            ]);
+
+                            // Update Wallet
+                            $deliverer->update(['wallet' => $newBalance]);
+                        }
                     }
                 }
             }
+
+            // Create customer debit transaction for the total order amount
+            $this->createCustomerDebitTransaction($order);
             
-            $order->update(['status' => 'completed']);
+            // Don't update status here - it's already 'completed' when this method is called
         });
     }
 
@@ -186,21 +198,34 @@ class FinancialService
         });
     }
     
+    /**
+     * No automatic customer transactions - payments handled manually
+     * Customers pay via wire transfer (order items) or cash (delivery fees)
+     */
+    private function createCustomerDebitTransaction(Order $order): void
+    {
+        // No automatic customer transactions
+        // Payments are handled outside the system:
+        // - Order items: Wire transfer (recorded manually by admin)
+        // - Delivery fees: Cash collected by driver (tracked in delivery records)
+        return;
+    }
+
     // --- Helpers ---
 
     private function hasProviderForType(OrderItem $item, string $type): bool
     {
         return match ($type) {
-            'warehouse_provider' => !is_null($item->warehouse_id),
-            'good_provider' => !is_null($item->good_id),
-            'logistics_provider' => !is_null($item->logistic_id),
+            'warehouse_provider' => count($item->warehouse?->providers ?? []) != 0,
+            'good_provider' => count($item->good?->providers ?? []) != 0,
+            'logistics_provider' => count($item->logistic?->providers ?? []) != 0,
             'referrer_provider' => !is_null($item->referrer_id),
             'delivery' => true,
             default => false,
         };
     }
 
-    private function createIncomeRecords($model, $totalAmount, $rule, $item, $pivotTable)
+    private function createIncomeRecords($model, $totalAmount, $rule, $item)
     {
         if (!$model) return;
 

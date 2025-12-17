@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
 use App\Models\OrderItem;
+use App\Observers\OrderObserver;
 use App\Observers\OrderItemObserver;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Order::observe(OrderObserver::class);
         OrderItem::observe(OrderItemObserver::class);
 
         DateTimePicker::macro('localeDateTime', function () {

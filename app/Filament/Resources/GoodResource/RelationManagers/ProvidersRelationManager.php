@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GoodResource\RelationManagers;
 
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -24,11 +25,22 @@ class ProvidersRelationManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\Select::make('provider_id')
-                    ->relationship('providers', 'name')
+                    ->options(User::pluck('name', 'id'))
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->label(__('rental.user')),
+                    ->label(__('rental.user'))
+                    ->getSearchResultsUsing(fn (string $search): array => 
+                        User::where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('mobile', 'like', "%{$search}%")
+                            ->limit(50)
+                            ->pluck('name', 'id')
+                            ->toArray()
+                    )
+                    ->getOptionLabelUsing(fn ($value): ?string => 
+                        User::find($value)?->name
+                    ),
                 Forms\Components\TextInput::make('ownership_percent')
                     ->label(__('rental.ownership_percent'))
                     ->numeric()
@@ -48,7 +60,22 @@ class ProvidersRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\AttachAction::make()
                     ->form(fn (Tables\Actions\AttachAction $action): array => [
-                        $action->getRecordSelect()->label(__('rental.user')),
+                        $action->getRecordSelect()
+                            ->label(__('rental.user'))
+                            ->options(User::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->getSearchResultsUsing(fn (string $search): array => 
+                                User::where('name', 'like', "%{$search}%")
+                                    ->orWhere('email', 'like', "%{$search}%")
+                                    ->orWhere('mobile', 'like', "%{$search}%")
+                                    ->limit(50)
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                            )
+                            ->getOptionLabelUsing(fn ($value): ?string => 
+                                User::find($value)?->name
+                            ),
                         Forms\Components\TextInput::make('ownership_percent')->label(__('rental.ownership_percent'))->required()->numeric()->default(100),
                     ]),
             ])

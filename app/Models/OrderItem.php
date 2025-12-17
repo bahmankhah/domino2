@@ -16,9 +16,10 @@ class OrderItem extends Model
         'order_id',
         'good_id', 'good_info',
         'referrer_id', 'referrer_info',
-        'damage', 'price',
+        'damage', 'price', 'good_supplier_price',
         'order_type_id', 'order_type_info',
-        'started_at', 'ended_at'
+        'started_at', 'ended_at',
+        'good_supplier_price'
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class OrderItem extends Model
     public function warehouse(): BelongsTo { return $this->belongsTo(Warehouse::class); }
     public function logistic(): BelongsTo { return $this->belongsTo(Logistic::class); }
     public function orderType(): BelongsTo { return $this->belongsTo(OrderType::class); }
+    public function referrer(): BelongsTo { return $this->belongsTo(User::class, 'referrer_id'); }
     public function incomes(): HasMany { return $this->hasMany(OrderItemIncome::class); }
 
     // Helpers to get the "Effective" data (Live or Snapshot)
